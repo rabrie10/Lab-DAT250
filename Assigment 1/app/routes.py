@@ -39,7 +39,7 @@ def index():
 #generating hashed password, fixing confirm password and giving max, min to password and usernames
     elif form.register.is_submitted() and form.register.submit.data:
         if form.register.password.data==form.register.confirm_password.data:
-            if 8 <= int(len(form.register.password.data)) <= 128 and 5 <= int(len(form.register.username.data)) <= 15:
+            if 8 <= int(len(form.register.password.data)) <= 128 and 4 <= int(len(form.register.username.data)) <= 15:
 
                 form.register.password.data = generate_password_hash(form.register.password.data, method='sha256')
                 query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, 
