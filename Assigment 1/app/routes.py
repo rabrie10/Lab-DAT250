@@ -27,13 +27,16 @@ def index():
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
         #user['password']
         #hashedpassword  = generate_password_hash((form.login.password.data), method='sha256')
+
+
+    #check hashedpassword during login
         if user == None:
             flash('Sorry, this user does not exist!')
         elif check_password_hash(user['password'], form.login.password.data) == True:
             return redirect(url_for('stream', username=form.login.username.data))
         else:
             flash('Sorry, wrong password!')
-
+#generating hashed password, fixing confirm password and giving max, min to password and usernames
     elif form.register.is_submitted() and form.register.submit.data:
         if form.register.password.data==form.register.confirm_password.data:
             if 8 <= int(len(form.register.password.data)) <= 128 and 5 <= int(len(form.register.username.data)) <= 15:
