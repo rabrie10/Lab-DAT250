@@ -1,11 +1,12 @@
 #from tkinter import INSERT
-from flask import render_template, flash, redirect, url_for#, request
+from flask import render_template, flash, redirect, url_for, session, request, app#, Flask
 from app import app, query_db
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
-from datetime import datetime
+from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
-
+#from flask_session import Session
+#from flask import make_response
 
 
 # this file contains all the different routes, and the logic for communicating with the database
@@ -16,10 +17,23 @@ import os
 #def require_login():
  #   allowed_routes = ['stream']
 
+# app.config['SESSION_PERMANENT']=False
+# app.config['SESSION_TYPE'] = 'filesystem'
+
+# app.config['PERMANENT_SESSION_LIFETIME']=timedelta(minutes=1)
+
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
+
+
 def index():
+    #session['username']
+    #session.set_cookie('username', '', expires=0)
+    #session.pop('session', None)
+    # else:
+    #del session['username']
+
     form = IndexForm()
     
     if form.login.is_submitted() and form.login.submit.data:
@@ -33,23 +47,46 @@ def index():
         if user == None:
             flash('Sorry, this user does not exist!')
         elif check_password_hash(user['password'], form.login.password.data) == True:
+            session['username'] = user['username']
+            #session['username']=user
+            #session.permanent=True
             return redirect(url_for('stream', username=form.login.username.data))
         else:
             flash('Sorry, wrong password!')
 #generating hashed password, fixing confirm password and giving max, min to password and usernames
     elif form.register.is_submitted() and form.register.submit.data:
         if form.register.password.data==form.register.confirm_password.data:
+            
+            usernm = query_db('SELECT * FROM Users WHERE username="{}";')
+            #for i in usernm:
+             #   if form.register.username.data == usernm[i]: 
+              #      flash("Username already in use")
+               # else:
             if 8 <= int(len(form.register.password.data)) <= 128 and 4 <= int(len(form.register.username.data)) <= 15:
 
-                form.register.password.data = generate_password_hash(form.register.password.data, method='sha256')
-                query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, 
-                form.register.first_name.data, form.register.last_name.data, form.register.password.data))
+                        form.register.password.data = generate_password_hash(form.register.password.data, method='sha256')
+                        query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, 
+                        form.register.first_name.data, form.register.last_name.data, form.register.password.data))
             else:
-                flash("Min, max username length: 4,15. min, max password length: 8, 128")
+                        flash("Min, max username length: 4,15. min, max password length: 8, 128")
+                
             return redirect(url_for('index'))
         else:
             flash("Confirm password needs to be the same as password...")
     return render_template('index.html', title='Welcome', form=form)
+
+#if anyone tryes to access non-accessible page, send them to index
+@app.before_request
+def require_login():
+    allowed_routes = ['index']
+    if request.endpoint not in allowed_routes and 'username' not in session:
+    #if 'username' not in session:
+       return redirect('/index')
+
+# @app.before_request
+# def make_session_permanent():
+#      session.permanent=True
+#      app.permanent_session_lifetime=timedelta(minutes=1)
 
 
 # content stream page
@@ -108,3 +145,6 @@ def profile(username):
     
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     return render_template('profile.html', title='profile', username=username, user=user, form=form)
+
+
+    
