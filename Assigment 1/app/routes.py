@@ -1,6 +1,6 @@
 #from tkinter import INSERT
 from flask import render_template, flash, redirect, url_for, session, request, app#, Flask
-from app import app, query_db
+from app import app, query_db, queryy_db
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -105,21 +105,32 @@ def index():
 #generating hashed password, fixing confirm password and giving max, min to password and usernames
     elif form.register.is_submitted() and form.register.submit.data:
         if form.register.password.data==form.register.confirm_password.data:
+            usernam = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.register.username.data), one=True)
             
-            usernm = query_db('SELECT * FROM Users WHERE username="{}";')
+            username = queryy_db('SELECT * From Users', one=True)
+            #usernam = query_db('SELECT * FROM Users;')
             
-            #for i in usernm:
-             #   if form.register.username.data == usernm[i]: 
-              #      flash("Username already in use")
-               # else:
-            if 8 <= int(len(form.register.password.data)) <= 128 and 4 <= int(len(form.register.username.data)) <= 15:
-
-                        form.register.password.data = generate_password_hash(form.register.password.data, method='sha256')
-                        query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, 
-                        form.register.first_name.data, form.register.last_name.data, form.register.password.data))
+            if username == None:
+                pass
             else:
-                        flash("Min, max username length: 4,15. min, max password length: 8, 128")
-                
+                for i in username:
+                    i[1]
+                    
+                    for us in i:
+                        if us == form.register.username.data:
+#print(usernm[1])
+                            flash("Username already in use")
+                            return redirect(url_for('index'))
+                        else:
+                            pass
+
+            if 8 <= int(len(form.register.password.data)) <= 128 and 4 <= int(len(form.register.username.data)) <= 15:
+                form.register.password.data = generate_password_hash(form.register.password.data, method='sha256')
+                query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, 
+                form.register.first_name.data, form.register.last_name.data, form.register.password.data))
+            else:
+                flash("Min, max username length: 4,15. min, max password length: 8, 128")
+
             return redirect(url_for('index'))
         else:
             flash("Confirm password needs to be the same as password...")
@@ -177,6 +188,9 @@ def friends(username):
         friend = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.username.data), one=True)
         if friend is None:
             flash('User does not exist')
+        elif friend == user:
+            flash("You can't add yourself.") 
+
         else:
             query_db('INSERT INTO Friends (u_id, f_id) VALUES({}, {});'.format(user['id'], friend['id']))
     

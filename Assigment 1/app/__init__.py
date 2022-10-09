@@ -5,6 +5,7 @@ from flask_bootstrap import Bootstrap
 import sqlite3
 import os
 
+
 # create and configure app
 app = Flask(__name__)
 Bootstrap(app)
@@ -37,6 +38,15 @@ def query_db(query, one=False):
     cursor.close()
     db.commit()
     return (rv[0] if rv else None) if one else rv
+
+def queryy_db(query, one=False):
+    db = get_db()
+    cursor = db.execute(query)
+    rv = cursor.fetchall()
+    cursor.close()
+    db.commit()
+    return (rv[0:] if rv else None) if one else rv
+
 
 # TODO: Add more specific queries to simplify code
 
