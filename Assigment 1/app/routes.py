@@ -9,6 +9,55 @@ import os
 #from flask import make_response
 
 
+# import sqlite3
+# from sqlite3 import Error
+
+
+# def create_connection(db_file):
+#     conn = None
+
+#     try: 
+#         conn = sqlite3.connect(db_file)
+#     except Error as e:
+#         print(e)
+#     return conn
+
+# def select_all_tasks(conn):
+#     """
+#     Query all rows in the tasks table
+#     :param conn: the Connection object
+#     :return:
+#     """
+#     cur = conn.cursor()
+#     cur.execute("SELECT * FROM tasks")
+
+#     rows = cur.fetchall()
+
+#     for row in rows:
+#         print(row)
+
+
+# def select_task_by_priority(conn, priority):
+#     """
+#     Query tasks by priority
+#     :param conn: the Connection object
+#     :param priority:
+#     :return:
+#     """
+#     cur = conn.cursor()
+#     cur.execute("SELECT * FROM Users WHERE priority=?", (priority,))
+
+#     rows = cur.fetchall()
+
+#     for row in rows:
+#         print(row)
+
+# database = r"/mnt/c/users/eier/github/Lab-DAT250/'Assigment 1'/database.db"
+
+# conn =create_connection(database)
+# with conn:
+#     data = select_all_tasks(conn)
+
 # this file contains all the different routes, and the logic for communicating with the database
 
 # home page/login/registration
@@ -58,6 +107,7 @@ def index():
         if form.register.password.data==form.register.confirm_password.data:
             
             usernm = query_db('SELECT * FROM Users WHERE username="{}";')
+            
             #for i in usernm:
              #   if form.register.username.data == usernm[i]: 
               #      flash("Username already in use")
