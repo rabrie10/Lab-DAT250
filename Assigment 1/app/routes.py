@@ -5,71 +5,6 @@ from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsFor
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
-#from flask_session import Session
-#from flask import make_response
-
-
-# import sqlite3
-# from sqlite3 import Error
-
-
-# def create_connection(db_file):
-#     conn = None
-
-#     try: 
-#         conn = sqlite3.connect(db_file)
-#     except Error as e:
-#         print(e)
-#     return conn
-
-# def select_all_tasks(conn):
-#     """
-#     Query all rows in the tasks table
-#     :param conn: the Connection object
-#     :return:
-#     """
-#     cur = conn.cursor()
-#     cur.execute("SELECT * FROM tasks")
-
-#     rows = cur.fetchall()
-
-#     for row in rows:
-#         print(row)
-
-
-# def select_task_by_priority(conn, priority):
-#     """
-#     Query tasks by priority
-#     :param conn: the Connection object
-#     :param priority:
-#     :return:
-#     """
-#     cur = conn.cursor()
-#     cur.execute("SELECT * FROM Users WHERE priority=?", (priority,))
-
-#     rows = cur.fetchall()
-
-#     for row in rows:
-#         print(row)
-
-# database = r"/mnt/c/users/eier/github/Lab-DAT250/'Assigment 1'/database.db"
-
-# conn =create_connection(database)
-# with conn:
-#     data = select_all_tasks(conn)
-
-# this file contains all the different routes, and the logic for communicating with the database
-
-# home page/login/registration
-
-#@app.before_request
-#def require_login():
- #   allowed_routes = ['stream']
-
-# app.config['SESSION_PERMANENT']=False
-# app.config['SESSION_TYPE'] = 'filesystem'
-
-# app.config['PERMANENT_SESSION_LIFETIME']=timedelta(minutes=1)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -77,11 +12,6 @@ import os
 
 
 def index():
-    #session['username']
-    #session.set_cookie('username', '', expires=0)
-    #session.pop('session', None)
-    # else:
-    #del session['username']
 
     form = IndexForm()
     
@@ -136,10 +66,6 @@ def require_login():
     #if 'username' not in session:
        return redirect('/index')
 
-# @app.before_request
-# def make_session_permanent():
-#      session.permanent=True
-#      app.permanent_session_lifetime=timedelta(minutes=1)
 
 
 # content stream page
@@ -149,12 +75,17 @@ def stream(username):
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     if form.validate_on_submit():
         if form.image.data:
-            path = os.path.join(app.config['UPLOAD_PATH'], form.image.data.filename)
-            form.image.data.save(path)
+            if form.image.data != None:
+                path = os.path.join(app.config['UPLOAD_PATH'], form.image.data.filename)
+                form.image.data.save(path)
 
 
-        query_db('INSERT INTO Posts (u_id, content, image, creation_time) VALUES({}, "{}", "{}", \'{}\');'.format(user['id'], form.content.data, form.image.data.filename, datetime.now()))
-        return redirect(url_for('stream', username=username))
+                query_db('INSERT INTO Posts (u_id, content, image, creation_time) VALUES({}, "{}", "{}", \'{}\');'.format(user['id'], form.content.data, form.image.data.filename, datetime.now()))
+            else:
+                query_db('INSERT INTO Posts (u_id, content, creation_time) VALUES({}, "{}" \'{}\');'.format(user['id'], form.content.data, datetime.now()))
+                flash("Need to post Picture with post!")
+                
+        return redirect(url_for('stream', username=username))   
 
     posts = query_db('SELECT p.*, u.*, (SELECT COUNT(*) FROM Comments WHERE p_id=p.id) AS cc FROM Posts AS p JOIN Users AS u ON u.id=p.u_id WHERE p.u_id IN (SELECT u_id FROM Friends WHERE f_id={0}) OR p.u_id IN (SELECT f_id FROM Friends WHERE u_id={0}) OR p.u_id={0} ORDER BY p.creation_time DESC;'.format(user['id']))
     return render_template('stream.html', title='Stream', username=username, form=form, posts=posts)
@@ -182,7 +113,7 @@ def friends(username):
             flash('User does not exist')
         elif friend == user:
             flash("You can't add yourself.") 
-
+        
         else:
             query_db('INSERT INTO Friends (u_id, f_id) VALUES({}, {});'.format(user['id'], friend['id']))
     

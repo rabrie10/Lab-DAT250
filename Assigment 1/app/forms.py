@@ -28,7 +28,7 @@ class IndexForm(FlaskForm):
 
 class PostForm(FlaskForm):
     content = TextAreaField('New Post', render_kw={'placeholder': 'What are you thinking about?'})
-    image = FileField('Image', validators=[FileAllowed(['jpg', 'png', 'img', 'None'], 'only jpeg, png and img files is allowed')])
+    image = FileField('Image', validators=[FileAllowed(['jpg', 'png', 'img', 'jpeg', 'html', 'data'], 'only jpeg, jpg, png and img files is allowed')])
     submit = SubmitField('Post')
 
 class CommentsForm(FlaskForm):
