@@ -109,14 +109,12 @@ def index():
                 pass
             else:
                 for i in username:
-                    i[1]
-                    
-                    for us in i[1]:
-                        if us == form.register.username.data:
-                            flash("Username already in use")
-                            return redirect(url_for('index'))
-                        else:
-                            pass
+                    a=i[1]
+                    if a == form.register.username.data:
+                        flash("Username already in use")
+                        return redirect(url_for('index'))
+                    else:
+                        pass
 #generating hashed password, fixing confirm password and giving max, min to password and usernames
             if 8 <= int(len(form.register.password.data)) <= 128 and 4 <= int(len(form.register.username.data)) <= 15:
                 form.register.password.data = generate_password_hash(form.register.password.data, method='sha256')
