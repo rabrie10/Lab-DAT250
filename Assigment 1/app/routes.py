@@ -5,6 +5,7 @@ from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsFor
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+import re 
 #from flask_session import Session
 #from flask import make_response
 
@@ -85,9 +86,16 @@ def index():
 
     form = IndexForm()
     
+    
     if form.login.is_submitted() and form.login.submit.data:
+        if not re.match("^[a-zA-Z0-9_@]+$", form.login.username.data):
+            flash("invalid username")
+            return render_template('index.html', title='Welcome', form=form)
         
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
+        
+        
+
         #user['password']
         #hashedpassword  = generate_password_hash((form.login.password.data), method='sha256')
 
@@ -95,6 +103,7 @@ def index():
     #check hashedpassword during login
         if user == None:
             flash('Sorry, this user does not exist!')
+        
         elif check_password_hash(user['password'], form.login.password.data) == True:
             session['username'] = user['username']
             #session['username']=user
