@@ -111,7 +111,7 @@ def index():
                 for i in username:
                     i[1]
                     
-                    for us in i:
+                    for us in i[1]:
                         if us == form.register.username.data:
                             flash("Username already in use")
                             return redirect(url_for('index'))
