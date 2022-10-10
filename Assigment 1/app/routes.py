@@ -5,7 +5,6 @@ from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsFor
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
-<<<<<<< HEAD
 import re 
 #from flask_session import Session
 #from flask import make_response
@@ -72,8 +71,8 @@ import re
 # app.config['SESSION_TYPE'] = 'filesystem'
 
 # app.config['PERMANENT_SESSION_LIFETIME']=timedelta(minutes=1)
-=======
->>>>>>> 8be3c359fbcbcbf58fe1c20b52d83b0b3abe2585
+
+
 
 
 @app.route('/', methods=['GET', 'POST'])
